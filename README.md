@@ -1,5 +1,5 @@
 # EmojiCrypt
-**Encrypt text with emojis.**
+**A simple module to encrypt text with emojis.**
 # Documentation
 ### Encrypt
 **Encrypts the message into emojis**
