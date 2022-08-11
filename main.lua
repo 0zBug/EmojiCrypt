@@ -1,4 +1,3 @@
-
 local EmojiCrypt = {}
 
 local Encode = {}
@@ -23,8 +22,8 @@ local Emojis = {
     0x64F, 0x440, 0x5E3, 0x431, 0x68E, 0x525, 0x5DD, 0x511
 }
 
-for Byte = 0, 255 do
-    local Emoji = utf8.char(Emojis[Byte % 128 + 1] + 0x1F000) .. (Byte > 127 and utf8.char(0x512) or "")
+for Byte = 0, 127 do
+    local Emoji = utf8.char(Emojis[Byte + 1] + 0x1F000)
 
     Decode[Emoji] = Byte
     Encode[Byte] = Emoji
@@ -44,22 +43,12 @@ function EmojiCrypt.Encrypt(Normal, Key)
 end
 
 function EmojiCrypt.Decrypt(Encrypted, Key)
-    local Decoded = {}
     local Decrypted = {}
-
-    for i = 1, #Encrypted, 4 do
-        local Current = string.sub(Encrypted, i, i + 3)
-        local Next = string.sub(Encrypted, i + 4, i + 7)
-
-        if Current ~= utf8.char(0x1F512) then
-            table.insert(Decoded, Decode[Current] + (Next == utf8.char(0x1F512) and 128 or 0))
-        end
-    end
 
     local Key = {string.byte(Key, 1, -1)}
     
-    for Index = 1, #Decoded do
-        table.insert(Decrypted, string.char(bit32.bxor(Decoded[Index], Key[Index % #Key + 1])))
+    for Index = 1, #Encrypted, 4 do
+        table.insert(Decrypted, string.char(bit32.bxor(Decode[string.sub(Encrypted, Index, Index + 3)], Key[math.ceil(Index / 4) % #Key + 1])))
     end
 
     return table.concat(Decrypted)
